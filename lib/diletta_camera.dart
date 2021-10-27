@@ -29,7 +29,7 @@ enum CameraError {
   noCameraAvailable,
 }
 
-enum _CameraState {
+enum CameraState {
   loading,
   error,
   ready,
@@ -71,7 +71,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
   final _visibilityKey = UniqueKey();
   CameraController? _cameraController;
   InputImageRotation? _rotation;
-  _CameraState _cameraState = _CameraState.loading;
+  CameraState cameraState = CameraState.loading;
   CameraError _cameraError = CameraError.unknown;
   bool _alreadyCheckingImage = false;
   bool _isStreaming = false;
@@ -214,7 +214,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
         debugPrint('Camera plugin doesn\'t support android under version 21');
         if (mounted) {
           setState(() {
-            _cameraState = _CameraState.error;
+            cameraState = CameraState.error;
             _cameraError = CameraError.androidVersionNotSupported;
           });
         }
@@ -224,7 +224,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
 
     final description = await _getCamera(widget.cameraLensDirection);
     if (description == null) {
-      _cameraState = _CameraState.error;
+      cameraState = CameraState.error;
       _cameraError = CameraError.noCameraAvailable;
 
       return;
@@ -258,7 +258,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
       debugPrint('$ex, $stack');
       if (mounted) {
         setState(() {
-          _cameraState = _CameraState.error;
+          cameraState = CameraState.error;
           _cameraError = CameraError.cantInitializeCamera;
         });
       }
@@ -270,7 +270,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
     }
 
     setState(() {
-      _cameraState = _CameraState.ready;
+      cameraState = CameraState.ready;
     });
     _rotation = _rotationIntToImageRotation(
       description.sensorOrientation,
@@ -295,14 +295,14 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
 
   @override
   Widget build(BuildContext context) {
-    if (_cameraState == _CameraState.loading) {
+    if (cameraState == CameraState.loading) {
       return widget.loadingBuilder == null
           ? Center(child: CircularProgressIndicator())
           : widget.loadingBuilder!(context);
     }
-    if (_cameraState == _CameraState.error) {
+    if (cameraState == CameraState.error) {
       return widget.errorBuilder == null
-          ? Center(child: Text('$_cameraState $_cameraError'))
+          ? Center(child: Text('$cameraState $_cameraError'))
           : widget.errorBuilder!(context, _cameraError);
     }
 
