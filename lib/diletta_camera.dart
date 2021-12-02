@@ -141,7 +141,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
   }
 
   void stopStream() {
-    if (_cameraController != null) {
+    if (_cameraController!.value.isStreamingImages) {
       _stopStream();
     }
   }
