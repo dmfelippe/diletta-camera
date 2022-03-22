@@ -14,7 +14,7 @@ dependencies:
   visibility_detector: ^0.2.2
   path_provider: ^2.0.7
   device_info: ^2.0.3
-  camera: ^0.9.4+14
+  camera: ^0.9.4+16
   collection: ^1.15.0
 
 dev_dependencies:
