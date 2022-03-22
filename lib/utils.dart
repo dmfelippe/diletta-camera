@@ -19,7 +19,7 @@ InputImageData buildMetaData(
 ) {
   return InputImageData(
     inputImageFormat: InputImageFormatMethods.fromRawValue(image.format.raw) ??
-        InputImageFormat.NV21,
+        InputImageFormat.YUV_420_888,
     size: Size(image.width.toDouble(), image.height.toDouble()),
     imageRotation: rotation,
     planeData: image.planes
