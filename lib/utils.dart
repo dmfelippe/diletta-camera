@@ -2,8 +2,7 @@ part of 'diletta_camera.dart';
 
 Future<CameraDescription?> _getCamera(CameraLensDirection dir) async {
   final cameras = await availableCameras();
-  final camera =
-      cameras.firstWhereOrNull((camera) => camera.lensDirection == dir);
+  final camera = cameras.firstWhereOrNull((camera) => camera.lensDirection == dir);
   return camera ?? (cameras.isEmpty ? null : cameras.first);
 }
 
@@ -13,25 +12,15 @@ Uint8List _concatenatePlanes(List<Plane> planes) {
   return allBytes.done().buffer.asUint8List();
 }
 
-InputImageData buildMetaData(
+InputImageMetadata buildMetaData(
   CameraImage image,
   InputImageRotation rotation,
 ) {
-  return InputImageData(
-    inputImageFormat: InputImageFormatMethods.fromRawValue(image.format.raw) ??
-        InputImageFormat.YUV_420_888,
-    size: Size(image.width.toDouble(), image.height.toDouble()),
-    imageRotation: rotation,
-    planeData: image.planes
-        .map(
-          (plane) => InputImagePlaneMetadata(
-            bytesPerRow: plane.bytesPerRow,
-            height: plane.height,
-            width: plane.width,
-          ),
-        )
-        .toList(),
-  );
+  return InputImageMetadata(
+      format: InputImageFormatValue.fromRawValue(image.format.raw) ?? InputImageFormat.yuv_420_888,
+      size: Size(image.width.toDouble(), image.height.toDouble()),
+      rotation: rotation,
+      bytesPerRow: image.planes.first.bytesPerRow);
 }
 
 Future<T> _detect<T>(
@@ -42,12 +31,11 @@ Future<T> _detect<T>(
   return handleDetection(
     InputImage.fromBytes(
       bytes: _concatenatePlanes(image.planes),
-      inputImageData: buildMetaData(image, rotation),
+      metadata: buildMetaData(image, rotation),
     ),
   );
 }
 
 InputImageRotation _rotationIntToImageRotation(int rotation) {
-  return InputImageRotationMethods.fromRawValue(rotation) ??
-      InputImageRotation.Rotation_0deg;
+  return InputImageRotationValue.fromRawValue(rotation) ?? InputImageRotation.rotation0deg;
 }

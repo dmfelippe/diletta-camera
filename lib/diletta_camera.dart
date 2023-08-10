@@ -2,12 +2,10 @@ library diletta_camera;
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:collection/collection.dart';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +17,7 @@ export 'package:camera/camera.dart';
 part 'utils.dart';
 
 typedef HandleDetection<T> = Future<T> Function(InputImage image);
-typedef ErrorWidgetBuilder = Widget Function(
-    BuildContext context, CameraError error);
+typedef ErrorWidgetBuilder = Widget Function(BuildContext context, CameraError error);
 
 enum CameraError {
   unknown,
@@ -65,8 +62,7 @@ class DilettaCamera<T> extends StatefulWidget {
   DilettaCameraState createState() => DilettaCameraState<T>();
 }
 
-class DilettaCameraState<T> extends State<DilettaCamera<T>>
-    with WidgetsBindingObserver {
+class DilettaCameraState<T> extends State<DilettaCamera<T>> with WidgetsBindingObserver {
   XFile? _lastImage;
   final _visibilityKey = UniqueKey();
   CameraController? _cameraController;
@@ -155,8 +151,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
 
   InputImageRotation? get imageRotation => _rotation;
 
-  Future<void> Function() get prepareForVideoRecording =>
-      _cameraController!.prepareForVideoRecording;
+  Future<void> Function() get prepareForVideoRecording => _cameraController!.prepareForVideoRecording;
 
   Future<void> startVideoRecording() async {
     await _cameraController!.stopImageStream();
@@ -245,12 +240,10 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
       _initializing = true;
       await _cameraController!.initialize();
       _initializing = false;
-      await _cameraController!
-          .lockCaptureOrientation(DeviceOrientation.portraitUp);
+      await _cameraController!.lockCaptureOrientation(DeviceOrientation.portraitUp);
       if (widget.zoomLevel > -1) {
         final maxZoom = (await _cameraController?.getMaxZoomLevel()) ?? 1.0;
-        await _cameraController?.setZoomLevel(
-            maxZoom > widget.zoomLevel ? widget.zoomLevel : maxZoom);
+        await _cameraController?.setZoomLevel(maxZoom > widget.zoomLevel ? widget.zoomLevel : maxZoom);
         await _cameraController?.setFlashMode(widget.flashMode);
       }
     } catch (ex, stack) {
@@ -296,14 +289,10 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
   @override
   Widget build(BuildContext context) {
     if (cameraState == CameraState.loading) {
-      return widget.loadingBuilder == null
-          ? Center(child: CircularProgressIndicator())
-          : widget.loadingBuilder!(context);
+      return widget.loadingBuilder == null ? Center(child: CircularProgressIndicator()) : widget.loadingBuilder!(context);
     }
     if (cameraState == CameraState.error) {
-      return widget.errorBuilder == null
-          ? Center(child: Text('$cameraState $_cameraError'))
-          : widget.errorBuilder!(context, _cameraError);
+      return widget.errorBuilder == null ? Center(child: Text('$cameraState $_cameraError')) : widget.errorBuilder!(context, _cameraError);
     }
 
     var cameraPreview = _isStreaming
@@ -319,9 +308,7 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
           cameraPreview,
           (cameraController?.value.isInitialized ?? false)
               ? AspectRatio(
-                  aspectRatio: _isLandscape()
-                      ? cameraController!.value.aspectRatio
-                      : (1 / cameraController!.value.aspectRatio),
+                  aspectRatio: _isLandscape() ? cameraController!.value.aspectRatio : (1 / cameraController!.value.aspectRatio),
                   child: widget.overlayBuilder!(context),
                 )
               : Container(),
@@ -348,21 +335,18 @@ class DilettaCameraState<T> extends State<DilettaCamera<T>>
   DeviceOrientation? _getApplicableOrientation() {
     return (cameraController?.value.isRecordingVideo ?? false)
         ? cameraController?.value.recordingOrientation
-        : (cameraController?.value.lockedCaptureOrientation ??
-            cameraController?.value.deviceOrientation);
+        : (cameraController?.value.lockedCaptureOrientation ?? cameraController?.value.deviceOrientation);
   }
 
   bool _isLandscape() {
-    return [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]
-        .contains(_getApplicableOrientation());
+    return [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight].contains(_getApplicableOrientation());
   }
 
   void _processImage(CameraImage cameraImage) async {
     if (!_alreadyCheckingImage && mounted) {
       _alreadyCheckingImage = true;
       try {
-        final results =
-            await _detect<T>(cameraImage, widget.detector, _rotation!);
+        final results = await _detect<T>(cameraImage, widget.detector, _rotation!);
         widget.onResult(results);
       } catch (ex, stack) {
         debugPrint('$ex, $stack');
